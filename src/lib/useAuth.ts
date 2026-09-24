@@ -1,0 +1,4 @@
+import { useEffect,useState } from "react";
+import { supabase } from "@/lib/demo-store";
+export type AuthState={user:any;session:any;isAdmin:boolean;loading:boolean};
+export function useAuth():AuthState{const [user,setUser]=useState<any>(null);const [loading,setLoading]=useState(true);const [isAdmin,setIsAdmin]=useState(false);useEffect(()=>{let active=true;supabase.auth.getSession().then(({data})=>{if(!active)return;const u=data.session?.user??null;setUser(u);setIsAdmin(Boolean(u?.email?.toLowerCase().includes("admin")));setLoading(false)});const {data}=supabase.auth.onAuthStateChange((_e,s)=>{const u=s?.user??null;setUser(u);setIsAdmin(Boolean(u?.email?.toLowerCase().includes("admin")));setLoading(false)});return()=>{active=false;data.subscription.unsubscribe()};},[]);return {user,session:user?{user}:null,isAdmin,loading};}
